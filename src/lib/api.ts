@@ -6,9 +6,7 @@
 
 export const LOADSHIELD_BASE =
   import.meta.env.VITE_LOADSHIELD_BASE_URL ||
-  (typeof window !== "undefined"
-    ? `${window.location.protocol}//${window.location.hostname}:4000`
-    : "http://localhost:4000");
+  "https://loadshield-gateway.onrender.com";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
