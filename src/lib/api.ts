@@ -5,7 +5,7 @@
  */
 
 export const LOADSHIELD_BASE =
-  (typeof window !== "undefined" && (window as any).LOADSHIELD_BASE_URL) ||
+  import.meta.env.VITE_LOADSHIELD_BASE_URL ||
   (typeof window !== "undefined"
     ? `${window.location.protocol}//${window.location.hostname}:4000`
     : "http://localhost:4000");

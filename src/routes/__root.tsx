@@ -58,13 +58,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           Something went wrong on our end. Please try again or reach out for support.
         </p>
 
-        {/* Contact card */}
-        <div className="mt-5 rounded-xl border border-border bg-card px-5 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Contact</p>
-          <p className="text-base font-bold text-foreground">Cyril Baah</p>
-          <p className="text-xs text-muted-foreground mt-0.5">LoadShield Support</p>
-        </div>
-
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => { router.invalidate(); reset(); }}
