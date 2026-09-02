@@ -37,7 +37,7 @@ import {
   rateLimitFixedWindow
 } from "./rules.js";
 
-const PORT = Number(process.env.LOADSHIELD_PORT || 4000);
+const PORT = Number(process.env.PORT || process.env.LOADSHIELD_PORT || 4000);
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4001";
 
 // Demo defaults (tweak via env vars)

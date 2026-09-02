@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 // - limited concurrent "work"
 // - CPU+latency simulated per request
 // This makes "before vs after" obvious when LoadShield is enabled.
-const PORT = Number(process.env.BACKEND_PORT || 4001);
+const PORT = Number(process.env.PORT || process.env.BACKEND_PORT || 4001);
 const MAX_INFLIGHT = Number(process.env.BACKEND_MAX_INFLIGHT || 50);
 const BASE_WORK_MS = Number(process.env.BACKEND_WORK_MS || 35);
 const WORK_JITTER_MS = Number(process.env.BACKEND_WORK_JITTER_MS || 30);

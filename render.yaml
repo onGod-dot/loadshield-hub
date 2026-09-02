@@ -1,0 +1,30 @@
+services:
+  # ── LoadShield Backend API ────────────────────────────────────────────────
+  - type: web
+    name: loadshield-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: node apps/backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # ── LoadShield Gateway ────────────────────────────────────────────────────
+  - type: web
+    name: loadshield-gateway
+    runtime: node
+    buildCommand: npm install
+    startCommand: node apps/loadshield/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BACKEND_URL
+        # Set this to the loadshield-backend URL after it deploys
+        # e.g. https://loadshield-backend.onrender.com
+        value: https://loadshield-backend.onrender.com
+      - key: GROQ_API_KEY
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
