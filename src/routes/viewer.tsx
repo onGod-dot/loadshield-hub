@@ -30,7 +30,8 @@ export const Route = createFileRoute("/viewer")({
 
 // The real TTU portal served through the LoadShield proxy
 // (strips X-Frame-Options so the iframe can embed it)
-const PORTAL_URL = "http://localhost:4000/portal/login";
+import { LOADSHIELD_BASE } from "@/lib/api";
+const PORTAL_URL = `${LOADSHIELD_BASE}/portal/login`;
 const PORTAL_DISPLAY_URL = "records.ttuportal.com · via LoadShield proxy";
 
 const STUDENT_ID = "STU-100118";
