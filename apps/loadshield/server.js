@@ -588,6 +588,37 @@ app.use("/portal", async (req, res) => {
     if (contentType.includes("text/html")) {
       let html = await upstreamRes.text();
 
+      // ── Cloudflare bot detection ─────────────────────────────────────────
+      // When the gateway runs on a cloud server (Render, Railway, etc.) Cloudflare
+      // blocks the request with a bot-verification page. Detect it and return a
+      // friendly error instead of proxying the challenge HTML to the iframe.
+      const isBotChallenge =
+        html.includes("Performing security verification") ||
+        html.includes("security service to protect") ||
+        html.includes("cf-challenge") ||
+        html.includes("jschl-answer") ||
+        html.includes("__cf_chl");
+
+      if (isBotChallenge) {
+        return res.status(503).send(`
+          <html><body style="font-family:sans-serif;padding:2rem;text-align:center;color:#1e293b;background:#f8fafc">
+            <div style="max-width:480px;margin:0 auto">
+              <div style="font-size:3rem;margin-bottom:1rem">🛡️</div>
+              <h2 style="color:#dc2626;margin-bottom:0.5rem">Portal Unavailable in Cloud Mode</h2>
+              <p style="color:#64748b;font-size:0.9rem;line-height:1.6;margin-bottom:1.5rem">
+                The TTU portal uses Cloudflare security which blocks requests from cloud servers (Render, Vercel, etc.).
+                The Portal Viewer only works when LoadShield is running <strong>locally on your machine</strong>.
+              </p>
+              <p style="color:#64748b;font-size:0.85rem">
+                To use the portal viewer, run <code style="background:#e2e8f0;padding:2px 6px;border-radius:4px">npm run start:servers</code> locally
+                and access the app at <code style="background:#e2e8f0;padding:2px 6px;border-radius:4px">http://localhost:8080</code>.
+              </p>
+            </div>
+          </body></html>
+        `);
+      }
+      // ─────────────────────────────────────────────────────────────────────
+
       // Rewrite absolute URLs pointing to the portal origin
       html = html.replaceAll(PORTAL_ORIGIN, "/portal");
 

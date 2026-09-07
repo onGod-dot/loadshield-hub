@@ -153,6 +153,21 @@ function ViewerPage() {
     setIframeBlocked(true);
   }
 
+  // Pre-check if portal is accessible through gateway (detects bot block)
+  useEffect(() => {
+    fetch(PORTAL_URL, { method: "GET" })
+      .then(res => {
+        if (res.status === 503) {
+          setLoading(false);
+          setIframeBlocked(true);
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+        setIframeBlocked(true);
+      });
+  }, []);
+
   return (
     <AppLayout title="Portal Viewer">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
@@ -208,32 +223,31 @@ function ViewerPage() {
               {/* Blocked / X-Frame-Options warning */}
               {iframeBlocked && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[#F8FAFC] p-8 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-destructive/10">
-                    <AlertCircle className="h-7 w-7 text-destructive" />
+                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[color:var(--warning)]/10">
+                    <AlertCircle className="h-7 w-7 text-[color:var(--warning)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Portal blocked embedding</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      The TTU portal has set <code className="rounded bg-muted px-1">X-Frame-Options</code> or{" "}
-                      <code className="rounded bg-muted px-1">Content-Security-Policy</code> which prevents it from
-                      being embedded in an iframe. This is a security policy on their server — not a LoadShield issue.
+                    <p className="text-sm font-semibold text-foreground">Portal Viewer — Local Only</p>
+                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                      The TTU portal uses Cloudflare security which blocks requests from cloud servers.
+                      The Portal Viewer only works when LoadShield is running <strong>locally on your machine</strong>.
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Run <code className="rounded bg-muted px-1 py-0.5">npm run start:servers</code> locally and open{" "}
+                      <code className="rounded bg-muted px-1 py-0.5">http://localhost:8080</code>
                     </p>
                   </div>
                   <a
-                    href={PORTAL_URL}
+                    href="https://records.ttuportal.com/login"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Open Portal in New Tab
+                    Open Portal Directly
                   </a>
-                  <p className="text-xs text-muted-foreground">
-                    LoadShield still protects all API calls from your students — the embed restriction is browser-enforced.
-                  </p>
                 </div>
               )}
-
               {/* The actual iframe */}
               {!iframeBlocked && (
                 <iframe
