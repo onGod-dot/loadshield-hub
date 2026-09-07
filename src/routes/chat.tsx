@@ -47,7 +47,18 @@ function ChatPage() {
 
     try {
       const response = await chatWithGroq([...messages, userMessage]);
-      setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+      // Strip any markdown symbols the model still produces
+      const clean = response
+        .replace(/#{1,6}\s*/g, "")           // headings
+        .replace(/\*\*(.+?)\*\*/g, "$1")     // bold
+        .replace(/\*(.+?)\*/g, "$1")         // italic
+        .replace(/`{1,3}([^`]*)`{1,3}/g, "$1") // code
+        .replace(/^\s*[-*•]\s+/gm, "")       // bullet points
+        .replace(/^\s*>\s+/gm, "")           // blockquotes
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links → just text
+        .replace(/\n{3,}/g, "\n\n")          // collapse excessive newlines
+        .trim();
+      setMessages((prev) => [...prev, { role: "assistant", content: clean }]);
     } catch (error) {
       toast.error("Failed to get response from AI assistant");
       setMessages((prev) => [...prev, { role: "assistant", content: "Sorry, I encountered an error. Please try again." }]);
