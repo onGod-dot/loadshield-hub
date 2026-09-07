@@ -69,18 +69,16 @@ app.disable("x-powered-by");
 app.use(morgan("dev"));
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-// Allow the frontend (any localhost port or deployed origin) to call the gateway.
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  // Allow any localhost origin in dev, or set LS_ALLOWED_ORIGIN for production
-  const allowed = process.env.LS_ALLOWED_ORIGIN || "http://localhost:8080";
-  const allowList = [allowed, "http://localhost:3000", "http://localhost:5173", "http://localhost:8080", "http://localhost:4173"];
-  if (origin && allowList.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else if (!origin) {
-    // same-origin / curl / server-to-server — allow
-    res.setHeader("Access-Control-Allow-Origin", "*");
-  }
+  // In production allow any origin (demo app) — lock this down in real prod
+  res.setHeader("Access-Control-Allow-Origin", origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-user-id, x-loadshield-admin-token");
+  res.setHeader("Access-Control-Expose-Headers", "x-loadshield-cache, x-loadshield-limit, x-loadshield-remaining, x-loadshield-reset-ms");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
+  next();
+});
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-user-id, x-loadshield-admin-token");
   res.setHeader("Access-Control-Expose-Headers", "x-loadshield-cache, x-loadshield-limit, x-loadshield-remaining, x-loadshield-reset-ms");
