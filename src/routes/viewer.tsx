@@ -138,19 +138,6 @@ function ViewerPage() {
   return (
     <AppLayout title="Portal Viewer">
 
-      {/* Cloud mode notice */}
-      {!IS_LOCAL_GATEWAY && (
-        <div className="mb-4 flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-          <div className="text-xs text-muted-foreground leading-relaxed">
-            <span className="font-semibold text-foreground">Cloud mode — </span>
-            The portal is loading directly from your browser (no proxy). Page snapshots and session tracking
-            are only available when running LoadShield locally with{" "}
-            <code className="rounded bg-muted px-1 py-0.5">npm run start:servers</code>.
-          </div>
-        </div>
-      )}
-
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* ── Iframe panel ── */}
         <SectionCard
