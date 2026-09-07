@@ -66,7 +66,7 @@ function formatCountdown(ms: number): string {
 function ViewerPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeKey, setIframeKey] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(IS_LOCAL_GATEWAY); // no loading spinner in cloud mode
   const [iframeBlocked, setIframeBlocked] = useState(false);
   const [tick, setTick] = useState(0);
   const [totalAllowed, setTotalAllowed] = useState(0);
@@ -126,7 +126,7 @@ function ViewerPage() {
     }
     setIframeKey((k) => k + 1);
     setLastRefresh(new Date());
-    setLoading(true);
+    if (IS_LOCAL_GATEWAY) setLoading(true);
     setTick((t) => t + 1);
     toast.success("Portal refreshed", { description: IS_LOCAL_GATEWAY ? "Cache cleared and view reloaded." : "View reloaded." });
     setRefreshing(false);
@@ -229,8 +229,8 @@ function ViewerPage() {
                 </div>
               )}
 
-              {/* The iframe */}
-              {!iframeBlocked && (
+              {/* The iframe — local proxy only */}
+              {!iframeBlocked && IS_LOCAL_GATEWAY && (
                 <iframe
                   key={iframeKey}
                   ref={iframeRef}
@@ -240,6 +240,35 @@ function ViewerPage() {
                   onLoad={handleIframeLoad}
                   onError={handleIframeError}
                 />
+              )}
+
+              {/* Cloud mode — portal can't be embedded (X-Frame-Options), show launch card */}
+              {!IS_LOCAL_GATEWAY && !iframeBlocked && (
+                <div className="flex h-full flex-col items-center justify-center gap-6 p-8 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                    <ExternalLink className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-foreground">TTU Student Portal</p>
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-sm">
+                      The TTU portal prevents embedding on external sites for security.
+                      Click below to open it in a new tab — your LoadShield gateway is still
+                      protecting and monitoring all traffic.
+                    </p>
+                  </div>
+                  <a
+                    href="https://records.ttuportal.com/login"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Open TTU Portal
+                  </a>
+                  <p className="text-[11px] text-muted-foreground">
+                    Opens in a new tab · records.ttuportal.com
+                  </p>
+                </div>
               )}
             </div>
           </div>
