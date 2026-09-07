@@ -71,14 +71,7 @@ app.use(morgan("dev"));
 // ── CORS ──────────────────────────────────────────────────────────────────────
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  // In production allow any origin (demo app) — lock this down in real prod
   res.setHeader("Access-Control-Allow-Origin", origin || "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-user-id, x-loadshield-admin-token");
-  res.setHeader("Access-Control-Expose-Headers", "x-loadshield-cache, x-loadshield-limit, x-loadshield-remaining, x-loadshield-reset-ms");
-  if (req.method === "OPTIONS") return res.sendStatus(200);
-  next();
-});
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-user-id, x-loadshield-admin-token");
   res.setHeader("Access-Control-Expose-Headers", "x-loadshield-cache, x-loadshield-limit, x-loadshield-remaining, x-loadshield-reset-ms");
