@@ -12,7 +12,6 @@ import {
   Server,
   Clock,
   AlertCircle,
-  Info,
 } from "lucide-react";
 import { AppLayout } from "@/components/app-layout";
 import { SectionCard } from "@/components/ui-bits";
@@ -67,7 +66,7 @@ function ViewerPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeKey, setIframeKey] = useState(0);
   const [loading, setLoading] = useState(IS_LOCAL_GATEWAY); // no loading spinner in cloud mode
-  const [iframeBlocked, setIframeBlocked] = useState(!IS_LOCAL_GATEWAY); // blocked immediately on cloud
+  const [iframeBlocked, setIframeBlocked] = useState(false);
   const [tick, setTick] = useState(0);
   const [totalAllowed, setTotalAllowed] = useState(0);
   const [totalBlocked, setTotalBlocked] = useState(0);
@@ -194,31 +193,28 @@ function ViewerPage() {
 
               {/* Error / blocked state */}
               {iframeBlocked && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 bg-[#F8FAFC] p-8 text-center">
-                  <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10">
-                    <ShieldCheck className="h-8 w-8 text-primary" />
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[#F8FAFC] p-8 text-center">
+                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[color:var(--warning)]/10">
+                    <AlertCircle className="h-7 w-7 text-[color:var(--warning)]" />
                   </div>
-                  <div className="max-w-sm">
-                    <p className="text-base font-bold text-foreground">Portal Viewer</p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-primary">Local Gateway Feature</p>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                      The embedded portal viewer requires LoadShield running locally on your machine.
-                      The TTU portal's security policy prevents embedding from external servers.
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      {IS_LOCAL_GATEWAY ? "Portal blocked embedding" : "Portal cannot be embedded"}
                     </p>
-                    <div className="mt-4 rounded-xl border border-border bg-background px-4 py-3 text-left">
-                      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">To use the portal viewer:</p>
-                      <code className="block text-xs text-foreground bg-muted rounded-lg px-3 py-2">npm run start:servers</code>
-                      <p className="mt-2 text-[11px] text-muted-foreground">Then visit <code className="rounded bg-muted px-1">localhost:8080</code></p>
-                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                      {IS_LOCAL_GATEWAY
+                        ? "The TTU portal set X-Frame-Options which prevents embedding. This is a security policy on their server."
+                        : "The TTU portal's X-Frame-Options security header prevents it from being embedded from external domains. Open it directly in your browser instead."}
+                    </p>
                   </div>
                   <a
                     href="https://records.ttuportal.com/login"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Open Portal in New Tab
+                    Open Portal Directly
                   </a>
                 </div>
               )}
@@ -233,6 +229,23 @@ function ViewerPage() {
                   className="h-full w-full border-0"
                   onLoad={handleIframeLoad}
                   onError={handleIframeError}
+                />
+              )}
+
+              {/* Cloud mode — load portal directly in browser iframe */}
+              {!IS_LOCAL_GATEWAY && (
+                <iframe
+                  key={iframeKey}
+                  src="https://records.ttuportal.com/login"
+                  title="TTU Student Portal"
+                  className="h-full w-full border-0"
+                  onLoad={() => setLoading(false)}
+                  onError={() => {
+                    setLoading(false);
+                    setIframeBlocked(true);
+                  }}
+                  // sandbox allows scripts + forms + popups so the portal works
+                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                 />
               )}
             </div>
