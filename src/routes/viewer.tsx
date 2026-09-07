@@ -205,16 +205,20 @@ function ViewerPage() {
                 </div>
               )}
 
-              {/* Error state */}
+              {/* Error / blocked state */}
               {iframeBlocked && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[#F8FAFC] p-8 text-center">
-                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-destructive/10">
-                    <AlertCircle className="h-7 w-7 text-destructive" />
+                  <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[color:var(--warning)]/10">
+                    <AlertCircle className="h-7 w-7 text-[color:var(--warning)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Could not load portal</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {IS_LOCAL_GATEWAY ? "Portal blocked embedding" : "Portal cannot be embedded"}
+                    </p>
                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      The TTU portal may have blocked this embedded view. Try opening it directly.
+                      {IS_LOCAL_GATEWAY
+                        ? "The TTU portal set X-Frame-Options which prevents embedding. This is a security policy on their server."
+                        : "The TTU portal's X-Frame-Options security header prevents it from being embedded from external domains. Open it directly in your browser instead."}
                     </p>
                   </div>
                   <a
@@ -242,33 +246,21 @@ function ViewerPage() {
                 />
               )}
 
-              {/* Cloud mode — portal can't be embedded (X-Frame-Options), show launch card */}
-              {!IS_LOCAL_GATEWAY && !iframeBlocked && (
-                <div className="flex h-full flex-col items-center justify-center gap-6 p-8 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-                    <ExternalLink className="h-8 w-8 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-base font-bold text-foreground">TTU Student Portal</p>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-sm">
-                      The TTU portal prevents embedding on external sites for security.
-                      Click below to open it in a new tab — your LoadShield gateway is still
-                      protecting and monitoring all traffic.
-                    </p>
-                  </div>
-                  <a
-                    href="https://records.ttuportal.com/login"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Open TTU Portal
-                  </a>
-                  <p className="text-[11px] text-muted-foreground">
-                    Opens in a new tab · records.ttuportal.com
-                  </p>
-                </div>
+              {/* Cloud mode — load portal directly in browser iframe */}
+              {!IS_LOCAL_GATEWAY && (
+                <iframe
+                  key={iframeKey}
+                  src="https://records.ttuportal.com/login"
+                  title="TTU Student Portal"
+                  className="h-full w-full border-0"
+                  onLoad={() => setLoading(false)}
+                  onError={() => {
+                    setLoading(false);
+                    setIframeBlocked(true);
+                  }}
+                  // sandbox allows scripts + forms + popups so the portal works
+                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                />
               )}
             </div>
           </div>
